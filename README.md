@@ -2,6 +2,8 @@
 
 Alle Karten für das Dashboard „Unser Zuhause“ in einem Paket. Jede Karte lässt sich auch einzeln auf jedem anderen Dashboard verwenden. Du findest sie im Kartenauswahl-Dialog unter „Benutzerdefiniert“.
 
+![Energiefluss-Karten: aktuelle Leistung und Energie heute mit Anteilen von PV, Batterie und Netz](https://raw.githubusercontent.com/SebastianInTheWild/ha-unser-zuhause-cards/main/images/energiefluss.png)
+
 | Karte | Typ | Inhalt |
 |---|---|---|
 | Energiefluss – Aktuell | `custom:uz-energy-now-card` | aktuelle Leistung mit Akkustand, Daten aus dem Energie-Dashboard |
