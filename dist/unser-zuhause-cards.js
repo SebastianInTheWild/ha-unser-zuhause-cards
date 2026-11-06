@@ -3,7 +3,7 @@
 // uz-energy-now-card, uz-energy-day-card (+ Editor), uz-system-status-card, uz-zombie-card,
 // uz-camera-grid-card (+ Editor), uz-link-tile, uz-collapsible-card, uz-badge-row, uz-spacer-card
 
-const UZ_CARDS_VERSION = "1.0.0";
+const UZ_CARDS_VERSION = "1.1.0";
 
 const SYSTEM_PATH = "system";
 
@@ -160,7 +160,14 @@ class UzEnergyFlowCard extends HTMLElement {
       this.attachShadow({ mode: "open" });
       this.shadowRoot.addEventListener("click", (ev) => {
         const node = ev.composedPath().find((el) => el.dataset?.entity);
-        if (!node) return;
+        if (!node) {
+          // Rest der Karte: zur Energie-Seite (path relativ zum Dashboard oder absolut, z. B. /energy)
+          const p = String(this._config.path || "");
+          if (!p) return;
+          const first = window.location.pathname.split("/").filter(Boolean)[0] || "lovelace";
+          uzNavigate(p.startsWith("/") ? p : `/${first}/${p}`);
+          return;
+        }
         this.dispatchEvent(
           new CustomEvent("hass-more-info", { detail: { entityId: node.dataset.entity }, bubbles: true, composed: true })
         );
@@ -588,7 +595,7 @@ class UzEnergyFlowCard extends HTMLElement {
         .leg { display: inline-flex; align-items: center; gap: 5px; color: var(--secondary-text-color); }
         .leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
       </style>
-      <ha-card>
+      <ha-card style="${this._config.path ? "cursor:pointer" : ""}">
         ${title ? `<div class="title">${esc(title)}</div>` : ""}
         <div class="flow">
           <svg class="lines" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${paths}</svg>
@@ -2887,7 +2894,7 @@ class UzCameraPreview extends HTMLElement {
         @keyframes uz-blink { 50% { opacity: .3; } }
         ha-card.active { outline: 3px solid var(--act); outline-offset: -3px; }
       </style>
-      <ha-card><div class="bar"><span class="live"></span><span class="n"></span><span class="act" hidden></span><ha-icon icon="mdi:chevron-right"></ha-icon></div><div class="img"></div></ha-card>`;
+      <ha-card><div class="bar"><span class="live"${this._config.live === false ? " hidden" : ""}></span><span class="n"></span><span class="act" hidden></span><ha-icon icon="mdi:chevron-right"></ha-icon></div><div class="img"></div></ha-card>`;
       this.shadowRoot.querySelector("ha-card").onclick = () => {
         const first = window.location.pathname.split("/").filter(Boolean)[0] || "lovelace";
         const p = String(this._config.path || "");
@@ -2907,7 +2914,7 @@ class UzCameraPreview extends HTMLElement {
       this._shown = cur.id;
       const helpers = await window.loadCardHelpers?.();
       const el = helpers?.createCardElement?.({
-        type: "picture-entity", entity: cur.id, camera_view: "live", show_name: false, show_state: false, aspect_ratio: "16:9",
+        type: "picture-entity", entity: cur.id, camera_view: this._config.live === false ? "auto" : "live", show_name: false, show_state: false, aspect_ratio: "16:9",
         tap_action: { action: "none" },
       });
       if (el && this._shown === cur.id) {

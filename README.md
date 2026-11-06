@@ -47,6 +47,7 @@ Netz, PV, Batterie, Wasser und Geräte holen die Karten selbst aus dem Energie-D
 type: custom:uz-energy-now-card
 battery_soc: sensor.battery_level
 devices: [Wallbox, Heizung]
+path: /energy             # optional: Antippen der Karte öffnet diese Seite (Kreise öffnen weiter die Details)
 ```
 
 ## Lizenz
