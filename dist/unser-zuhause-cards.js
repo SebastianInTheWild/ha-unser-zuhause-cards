@@ -1567,8 +1567,9 @@ if (!customElements.get("uz-collapsible-card")) {
 
 // ---------- Karte: uz-badge-row ----------
 // Zentrierte Badge-Leiste im HA-Badge-Stil (Header Reihe 2).
-// config: { entities: [...], actions: { "<entity_id>": <tap_action> }, names: { "<entity_id>": "Name" } }
-// ohne Aktion: Details anzeigen; ohne eigenen Namen: Name der Entität
+// config: { entities: [...], actions: { "<entity_id>": <tap_action> }, names: { "<entity_id>": "Name" },
+//          hide_state: { "<entity_id>": true } }
+// ohne Aktion: Details anzeigen; ohne eigenen Namen: Name der Entität; hide_state = nur Name, keine zweite Zeile
 
 class UzBadgeRow extends HTMLElement {
   setConfig(config) {
@@ -1598,7 +1599,8 @@ class UzBadgeRow extends HTMLElement {
     const ids = this._config?.entities || [];
     // Nur neu zeichnen, wenn sich einer der Zustände geändert hat
     const names = this._config?.names || {};
-    const sig = ids.map((id) => hass.states[id]?.last_updated).join("|") + JSON.stringify(names);
+    const hide = this._config?.hide_state || {};
+    const sig = ids.map((id) => hass.states[id]?.last_updated).join("|") + JSON.stringify(names) + JSON.stringify(hide);
     if (sig === this._sig) return;
     this._sig = sig;
     this.shadowRoot.innerHTML = `
@@ -1628,7 +1630,11 @@ class UzBadgeRow extends HTMLElement {
       icon.stateObj = st;
       const txt = document.createElement("div");
       txt.className = "txt";
-      txt.innerHTML = `<span class="name">${esc(String(names[id] || "").trim() || st.attributes.friendly_name || id)}</span>
+      const name = esc(String(names[id] || "").trim() || st.attributes.friendly_name || id);
+      // Ohne zweite Zeile steht der Name groß wie sonst der Zustand (z. B. Knöpfe ohne „zuletzt gedrückt“)
+      txt.innerHTML = hide[id]
+        ? `<span class="state">${name}</span>`
+        : `<span class="name">${name}</span>
         <span class="state">${esc(hass.formatEntityState?.(st) ?? st.state)}</span>`;
       badge.append(icon, txt);
       row.appendChild(badge);
