@@ -3,7 +3,7 @@
 // uz-energy-now-card, uz-energy-day-card (+ Editor), uz-system-status-card, uz-zombie-card,
 // uz-camera-grid-card (+ Editor), uz-link-tile, uz-collapsible-card, uz-badge-row, uz-spacer-card
 
-const UZ_CARDS_VERSION = "1.2.0";
+const UZ_CARDS_VERSION = "1.2.1";
 
 const SYSTEM_PATH = "system";
 
@@ -2136,8 +2136,9 @@ function fireMoreInfo(el, entityId) {
 
 // ---------- uz-greeting-card ----------
 // config: { weather, sun, lights, windows, windows_count, trash_calendar,
-//           energy: { solar, grid_in, grid_out, battery_in, battery_out }, weekly_review: "sunday" | "always" | "off" }
-// Hintergrund je Tageszeit (Sonnenstand) und Wetter, Begrüßung mit Vornamen, Kurzinfo als Chips.
+//           energy: { solar, grid_in, grid_out, battery_in, battery_out }, weekly_review: "sunday" | "always" | "off",
+//           hide_name_users: [user_id, …], show_name: false }
+// Hintergrund je Tageszeit (Sonnenstand) und Wetter, Begrüßung mit Vornamen (außer für hide_name_users), Kurzinfo als Chips.
 
 const WEATHER_DE = {
   "clear-night": ["Klar", "mdi:weather-night", "spin"], cloudy: ["Bewölkt", "mdi:weather-cloudy", "drift"],
@@ -2343,7 +2344,9 @@ class UzGreetingCard extends HTMLElement {
     const cond = w?.state;
     const phase = dayPhase(this._hass, this._config.sun, now);
     const amb = ambientFor(phase, cond);
-    const first = String(this._hass.user?.name || "").split(" ")[0];
+    // Ohne Namen für bestimmte Benutzer (z. B. Service-Konto eines Displays, das mehrere benutzen)
+    const hideName = (this._config.hide_name_users || []).includes(this._hass.user?.id) || this._config.show_name === false;
+    const first = hideName ? "" : String(this._hass.user?.name || "").split(" ")[0];
     const hello = `${greetingWord(now)}${first ? `, ${first}` : ""}`;
     const date = `${DE_WEEKDAYS[now.getDay()]}, ${now.getDate()}. ${DE_MONTHS[now.getMonth()]}`;
     let [condText, condIcon, condAnim] = WEATHER_DE[cond] || ["", "", ""];
