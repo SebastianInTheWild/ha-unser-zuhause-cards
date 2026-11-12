@@ -3,7 +3,7 @@
 // uz-energy-now-card, uz-energy-day-card (+ Editor), uz-system-status-card, uz-zombie-card,
 // uz-camera-grid-card (+ Editor), uz-link-tile, uz-collapsible-card, uz-badge-row, uz-spacer-card
 
-const UZ_CARDS_VERSION = "1.1.0";
+const UZ_CARDS_VERSION = "1.2.0";
 
 const SYSTEM_PATH = "system";
 
