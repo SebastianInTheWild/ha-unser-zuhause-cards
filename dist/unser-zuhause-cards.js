@@ -936,8 +936,19 @@ function systemStatus(hass, config, extra = {}) {
   return { level, score, updates, repairs, errors, reasons };
 }
 
-// Navigation innerhalb des Dashboards (wie HA selbst)
+// Navigation innerhalb des Dashboards über HAs eigene navigate-Aktion: Nur so merkt sich HA,
+// woher man kam, und der Zurück-Pfeil führt dorthin (sonst springt er auf die erste Seite).
 function uzNavigate(path) {
+  const root = document.querySelector("home-assistant");
+  if (root) {
+    root.dispatchEvent(new CustomEvent("hass-action", {
+      bubbles: true,
+      composed: true,
+      detail: { config: { tap_action: { action: "navigate", navigation_path: path } }, action: "tap" },
+    }));
+    return;
+  }
+  // Ohne HA-Oberfläche (Tests): selbst navigieren
   window.history.pushState(null, "", path);
   window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
 }
